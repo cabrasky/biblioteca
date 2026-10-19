@@ -13,6 +13,9 @@ biblioteca.
 
 `libros` (y el portal de login `ipca`) son accesibles desde Internet; `emule` solo desde LAN/VPN.
 
+La versión anterior (calibre-server) está archivada en `cabrasky/biblioteca-calibre-server`.
+La biblioteca de libros es la misma (PVC `calibre-biblioteca`): solo cambió la web que la sirve.
+
 ## Qué cambia respecto a Calibre-Web original
 
 Todos los cambios en el código llevan la marca `[biblioteca]`:
