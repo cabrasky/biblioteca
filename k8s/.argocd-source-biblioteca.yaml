@@ -1,5 +1,5 @@
 kustomize:
   images:
   - registry.cabrasky.net/biblioteca-calibre:latest@sha256:4d91722a98ec6a1615e22b5368192515dd05f7385cf824bd8fd6232fe37faef8
-  - registry.cabrasky.net/biblioteca-pedidos:latest@sha256:30f44b1c2f6ffbed938f344c2fd93a64ecdc0fcd241f4c0b5cf7c147618bd47d
-  - registry.cabrasky.net/biblioteca-calibre-web:latest@sha256:481aecd4f99ba18543db8328738255a98adb8844a599d3ee338fb947b5e0f177
+  - registry.cabrasky.net/biblioteca-pedidos:latest@sha256:969a773786d6edec5be7c9a7e3331281427edc856121db6561cbdd5cfa0b3300
+  - registry.cabrasky.net/biblioteca-calibre-web:latest@sha256:443260c7eccdf61cc040f0048b1382ca5bafd7efb4ef2f85874c841c59eccd47
