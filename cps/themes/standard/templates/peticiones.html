@@ -3,7 +3,13 @@
 <link href="{{ url_for('static', filename='css/peticiones.css') }}" rel="stylesheet" media="screen">
 {% endblock %}
 {% block body %}
-<div id="peticiones" class="peticiones" data-api="{{ peticiones_api }}">
+<div id="peticiones" class="peticiones" data-api="{{ peticiones_api }}" data-consulta="{{ consulta }}">
+  {% if sin_resultados %}
+  <div class="alert alert-info pet-aviso">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    <strong>«{{ consulta }}» no está en la biblioteca.</strong> Lo estamos buscando en eMule: si aparece, pulsa <em>Pedir</em> y se añadirá solo.
+  </div>
+  {% endif %}
   <div class="pet-cabecera">
     <h2>Peticiones</h2>
     <span id="pet-red" class="pet-red" title="Estado de la red eD2K / Kad"><i></i><span>conectando…</span></span>

@@ -25,7 +25,7 @@ La pestaña solo aparece si CALIBRE_WEB_PETICIONES_API está definida.
 
 import os
 
-from flask import Blueprint, abort
+from flask import Blueprint, abort, request
 
 from .cw_login import current_user
 from .render_template import render_title_template
@@ -42,10 +42,20 @@ def enabled():
     return bool(api_url())
 
 
+@peticiones.app_context_processor
+def _variables_plantilla():
+    # Para el enlace «Buscar en eMule» de la página de resultados del buscador
+    return {"peticiones_enabled": enabled()}
+
+
 @peticiones.route("/peticiones")
 @user_login_required
 def index(data=None):
     if not enabled() or current_user.is_anonymous:
         abort(404)
+    # ?q=... lanza la búsqueda al abrir la página; origen=buscador -> venimos del buscador de
+    # arriba sin resultados en la biblioteca
+    q = (request.args.get("q") or "").strip()[:120]
     return render_title_template("peticiones.html", title="Peticiones", page="peticiones",
-                                 peticiones_api=api_url())
+                                 peticiones_api=api_url(), consulta=q,
+                                 sin_resultados=(request.args.get("origen") == "buscador" and bool(q)))

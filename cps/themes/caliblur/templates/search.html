@@ -10,6 +10,11 @@
       <p>{{_('Search Term:')}} {{adv_searchterm}}</p>
     {% else %}
       <h2>{{result_count}} {{_('Results for:')}} {{adv_searchterm}}</h2>
+      {# [biblioteca] por si el libro buscado no es ninguno de estos #}
+      {% if page == 'search' and peticiones_enabled and current_user.is_authenticated and adv_searchterm %}
+        <p class="text-muted"><span class="glyphicon glyphicon-cloud-download"></span>
+          ¿No es ninguno de estos? <a href="{{ url_for('peticiones.index', q=adv_searchterm) }}">Buscar «{{ adv_searchterm }}» en eMule</a></p>
+      {% endif %}
       {% if current_user.is_authenticated %}
         {% if current_user.shelf.all() or g.shelves_access %}
           <div id="shelf-actions" class="btn-toolbar" role="toolbar">

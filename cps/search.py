@@ -430,6 +430,11 @@ def render_search_results(term, offset=None, order=None, limit=None):
         order = [None, None]
         pagination = result_count = None
 
+    # [biblioteca] si el libro no está en la biblioteca, buscarlo en eMule (pestaña Peticiones)
+    from . import peticiones
+    if term and not result_count and not offset and peticiones.enabled() and not current_user.is_anonymous:
+        return redirect(url_for('peticiones.index', q=term.strip(), origen='buscador'))
+
     return render_title_template('search.html',
                                  searchterm=term,
                                  pagination=pagination,

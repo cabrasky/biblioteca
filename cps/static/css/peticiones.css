@@ -26,4 +26,5 @@
 .pet-pedidos .progress, .pet-tabla .progress { height: 6px; margin: 6px 0 0; }
 .pet-vacio { text-align: center; padding: 25px; border: 1px dashed rgba(128,128,128,.4); border-radius: 6px; }
 .pet-pestanas > li > a { padding: 5px 12px; }
+.pet-aviso { margin-bottom: 15px; }
 .pet-acciones { white-space: nowrap; text-align: right; }

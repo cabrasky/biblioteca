@@ -172,6 +172,13 @@
   }
 
   cargarPedidos(); estadoRed();
+
+  // ?q=... (p. ej. desde el buscador de arriba sin resultados): lanzar la búsqueda directamente
+  var consulta = raiz.getAttribute("data-consulta");
+  if (consulta && consulta.length >= 3) {
+    $("#pet-q").value = consulta;
+    $("#pet-buscar").dispatchEvent(new Event("submit", { cancelable: true }));
+  }
   setInterval(cargarPedidos, 5000);
   setInterval(estadoRed, 30000);
 })();

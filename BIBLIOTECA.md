@@ -32,6 +32,9 @@ Todos los cambios en el código llevan la marca `[biblioteca]`:
   (`cps/render_template.py`) y registro del blueprint (`cps/main.py`): pestaña **Peticiones**.
   Solo aparece si `CALIBRE_WEB_PETICIONES_API` está definida; habla con la API del servicio
   `pedidos/`.
+- **Buscador de arriba** (`cps/search.py`, `search.html`): si la búsqueda no encuentra nada en la
+  biblioteca, salta a Peticiones con la búsqueda ya lanzada en eMule; si encuentra algo, ofrece
+  igualmente el enlace «Buscar en eMule».
 - **`Dockerfile`**, **`biblioteca/`**: imagen con Calibre-Web + binarios oficiales de calibre
   (conversión), `configurar.py` (configuración gestionada: español, título «Biblioteca», biblioteca
   `/biblioteca`, login por cabecera `Remote-User` solo desde la red de pods, binarios de calibre,
