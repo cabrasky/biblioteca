@@ -1,0 +1,29 @@
+.peticiones { width: 100%; }
+.pet-cabecera, .pet-subcabecera { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.pet-subcabecera { margin-top: 30px; }
+.pet-subcabecera h3 { margin: 10px 0; }
+.pet-buscador { margin: 15px 0 5px; }
+.pet-progreso { height: 4px; margin: 10px 0 0; }
+.pet-red { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; opacity: .8; }
+.pet-red i { width: 9px; height: 9px; border-radius: 50%; background: #999; display: inline-block; }
+.pet-red.ok i { background: #5cb85c; box-shadow: 0 0 0 3px rgba(92,184,92,.25); }
+.pet-red.mal i { background: #d9534f; }
+.pet-tabla td { vertical-align: middle !important; }
+.pet-titulo { font-weight: 600; word-break: break-word; }
+.pet-meta { font-size: 12px; opacity: .75; }
+.pet-formato {
+  display: inline-block; min-width: 46px; padding: 6px 4px 4px; border-radius: 3px 6px 6px 3px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; text-align: center;
+  color: #fff; background: #7d5a3a; box-shadow: inset 3px 0 0 rgba(0,0,0,.2);
+}
+.pet-formato.f-epub { background: #4e8a5f; }
+.pet-formato.f-pdf { background: #b5524a; }
+.pet-formato.f-mobi, .pet-formato.f-azw3, .pet-formato.f-azw { background: #c08a35; }
+.pet-formato.f-cbz, .pet-formato.f-cbr { background: #6c6fc4; }
+.pet-calidad { display: inline-flex; gap: 2px; vertical-align: middle; margin-right: 6px; }
+.pet-calidad i { width: 4px; height: 11px; border-radius: 1px; background: rgba(128,128,128,.35); display: inline-block; }
+.pet-calidad i.on { background: #5cb85c; }
+.pet-pedidos .progress, .pet-tabla .progress { height: 6px; margin: 6px 0 0; }
+.pet-vacio { text-align: center; padding: 25px; border: 1px dashed rgba(128,128,128,.4); border-radius: 6px; }
+.pet-pestanas > li > a { padding: 5px 12px; }
+.pet-acciones { white-space: nowrap; text-align: right; }

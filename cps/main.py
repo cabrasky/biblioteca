@@ -76,6 +76,9 @@ def main():
     app.register_blueprint(meta)
     app.register_blueprint(gdrive)
     app.register_blueprint(editbook)
+    # [biblioteca] pestaña de peticiones de libros
+    from .peticiones import peticiones
+    app.register_blueprint(peticiones)
     if kobo_available:
         limiter.limit("3/minute", key_func=get_remote_address)(kobo)
         app.register_blueprint(kobo)

@@ -1,0 +1,86 @@
+# Calibre-Web (este fork) sobre la biblioteca de calibre + importador de descargas de aMule.
+#   calibre-web -> interfaz web/OPDS en :8083. Login por la cabecera Remote-User de Authelia
+#                  (FreeIPA); los usuarios se crean solos al entrar. Admins: grupo «admins» de
+#                  FreeIPA y CALIBRE_WEB_PROXY_ADMIN_USERS. Pestaña «Peticiones» -> /pedidos/api.
+#   importador  -> mete en la biblioteca lo que descarga aMule (calibredb sobre /biblioteca)
+# La biblioteca (PVC calibre-biblioteca) es la misma que usaba calibre-server: no hay migración
+# de datos, solo cambia el programa que la sirve. La config de Calibre-Web va en calibre-web-config.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calibre-web
+  labels: { app: calibre-web }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }   # SQLite en PVC RWO
+  selector:
+    matchLabels: { app: calibre-web }
+  template:
+    metadata:
+      labels: { app: calibre-web }
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: calibre-web
+          image: biblioteca-calibre-web
+          args: [servidor]
+          ports:
+            - { name: http, containerPort: 8083 }
+          env:
+            - { name: TZ, value: Europe/Madrid }
+            - { name: CW_IDIOMA, value: es }
+            - { name: CW_TITULO, value: Biblioteca }
+            - { name: CW_PROXIES_CONFIANZA, value: "10.42.0.0/16" }   # pods (Traefik); la NetworkPolicy limita a Traefik
+            - { name: CALIBRE_WEB_PROXY_AUTOCREATE, value: "1" }
+            - { name: CALIBRE_WEB_PROXY_ADMIN_GROUP, value: admins }
+            - { name: CALIBRE_WEB_PROXY_ADMIN_USERS, value: cabrasky }
+            - { name: CALIBRE_WEB_PETICIONES_API, value: /pedidos/api }
+          volumeMounts:
+            - { name: biblioteca, mountPath: /biblioteca }
+            - { name: config, mountPath: /config }
+          startupProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 30
+            timeoutSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 192Mi }
+            limits: { memory: 1Gi }
+        - name: importador
+          image: biblioteca-calibre-web
+          args: [importador]
+          env:
+            - { name: TZ, value: Europe/Madrid }
+          volumeMounts:
+            - { name: biblioteca, mountPath: /biblioteca }
+            - { name: descargas, mountPath: /descargas }
+          resources:
+            requests: { cpu: 10m, memory: 64Mi }
+            limits: { memory: 512Mi }
+      volumes:
+        - name: biblioteca
+          persistentVolumeClaim: { claimName: calibre-biblioteca }
+        - name: descargas
+          persistentVolumeClaim: { claimName: descargas }
+        - name: config
+          persistentVolumeClaim: { claimName: calibre-web-config }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calibre-web
+spec:
+  selector: { app: calibre-web }
+  ports:
+    - { name: http, port: 8083, targetPort: http }

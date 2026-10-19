@@ -1,0 +1,26 @@
+# Argo CD Image Updater v1.x: la configuración va en un recurso ImageUpdater
+# (las anotaciones en la Application ya NO se leen en v1).
+# Jenkins publica :latest y :<sha>; se sigue el digest de :latest y se escribe en Git
+# (k8s/.argocd-source-biblioteca.yaml). El Jenkinsfile ignora esos commits para no entrar en bucle.
+# aMule (ngosang/amule) va fijado a versión en k8s/amule.yaml: se actualiza a mano.
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: biblioteca
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: biblioteca
+      images:
+        - alias: calibre-web
+          imageName: registry.cabrasky.net/biblioteca-calibre-web:latest
+          commonUpdateSettings:
+            updateStrategy: digest
+        - alias: pedidos
+          imageName: registry.cabrasky.net/biblioteca-pedidos:latest
+          commonUpdateSettings:
+            updateStrategy: digest
+  writeBackConfig:
+    method: git
+    gitConfig:
+      branch: main

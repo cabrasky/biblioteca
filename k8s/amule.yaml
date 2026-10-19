@@ -1,0 +1,62 @@
+# aMule (cliente eD2K/Kad) con amuleapi: API REST + interfaz web en :4711.
+# Puertos P2P publicados en el nodo (hostPort) para poder abrirlos en el router
+# hacia 192.168.1.22 y conseguir HighID. Sin abrirlos funciona igual, con LowID.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amule
+  labels: { app: amule }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: amule }
+  template:
+    metadata:
+      labels: { app: amule }
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: amule
+          image: ngosang/amule:3.1.0-1
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ, value: Europe/Madrid }
+            - name: GUI_PWD
+              valueFrom: { secretKeyRef: { name: biblioteca-secrets, key: AMULE_GUI_PWD } }
+            - name: WEBUI_PWD
+              valueFrom: { secretKeyRef: { name: biblioteca-secrets, key: AMULE_WEBUI_PWD } }
+          ports:
+            - { name: web, containerPort: 4711 }
+            - { name: ed2k-tcp, containerPort: 4662, hostPort: 4662, protocol: TCP }
+            - { name: ed2k-udp, containerPort: 4665, hostPort: 4665, protocol: UDP }
+            - { name: kad-udp, containerPort: 4672, hostPort: 4672, protocol: UDP }
+          volumeMounts:
+            - { name: config, mountPath: /home/amule/.aMule }
+            - { name: descargas, mountPath: /downloads }
+          readinessProbe:
+            httpGet: { path: /api/v1/health, port: web }
+            periodSeconds: 15
+          livenessProbe:
+            httpGet: { path: /api/v1/health, port: web }
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            timeoutSeconds: 10
+          resources:
+            requests: { cpu: 20m, memory: 96Mi }
+            limits: { memory: 512Mi }
+      volumes:
+        - name: config
+          persistentVolumeClaim: { claimName: amule-config }
+        - name: descargas
+          persistentVolumeClaim: { claimName: descargas }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: amule
+spec:
+  selector: { app: amule }
+  ports:
+    - { name: web, port: 4711, targetPort: web }

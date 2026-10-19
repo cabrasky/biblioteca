@@ -1,0 +1,59 @@
+# Portal de pedidos: buscar en eD2K/Kad y pedir libros (libros.cabrasky.net/pedidos/).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pedidos
+  labels: { app: pedidos }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: pedidos }
+  template:
+    metadata:
+      labels: { app: pedidos }
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: pedidos
+          image: biblioteca-pedidos
+          ports:
+            - { name: http, containerPort: 8000 }
+          env:
+            - { name: TZ, value: Europe/Madrid }
+            - { name: AMULE_URL, value: "http://amule:4711" }
+            - { name: CALIBRE_PUBLICO, value: "https://libros.cabrasky.net/" }
+            - { name: ENLACE_LIBRO, value: "/book/{id}" }     # ficha en Calibre-Web
+            - { name: INTERFAZ, value: /peticiones }           # la UI es la pestaña de Calibre-Web
+            - { name: GRUPO_ADMIN, value: admins }
+            - name: AMULE_WEBUI_PWD
+              valueFrom: { secretKeyRef: { name: biblioteca-secrets, key: AMULE_WEBUI_PWD } }
+          volumeMounts:
+            - { name: descargas, mountPath: /descargas }
+          readinessProbe:
+            httpGet: { path: /pedidos/healthz, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /pedidos/healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests: { cpu: 10m, memory: 64Mi }
+            limits: { memory: 256Mi }
+      volumes:
+        - name: descargas
+          persistentVolumeClaim: { claimName: descargas }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pedidos
+spec:
+  selector: { app: pedidos }
+  ports:
+    - { name: http, port: 8000, targetPort: http }

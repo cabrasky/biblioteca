@@ -27,6 +27,7 @@ from werkzeug.datastructures import Authorization
 from werkzeug.security import check_password_hash
 
 from . import lm, ub, config, logger, limiter, constants, services
+from . import proxy_provisioning
 from .reverse_proxy_auth import is_shared_secret_valid, is_trusted_proxy_source
 
 
@@ -64,7 +65,9 @@ def requires_basic_auth_if_no_ano(f):
         authorisation = auth.get_auth()
         status = None
         user = None
-        if config.config_allow_reverse_proxy_header_login and not authorisation:
+        # [biblioteca] El proxy de autenticación (Authelia) ya ha validado la cabecera Authorization
+        # de los lectores OPDS y nos pasa el usuario en la cabecera: se usa aunque haya Authorization.
+        if config.config_allow_reverse_proxy_header_login:
             user = load_user_from_reverse_proxy_header(request)
         if config.config_anonbrowse == 1 and not authorisation:
             authorisation = Authorization(
@@ -146,6 +149,8 @@ def load_user_from_reverse_proxy_header(req):
                 log.warning('Rejected reverse proxy authentication header due to missing or invalid shared secret')
                 return None
             user = ub.session.query(ub.User).filter(func.lower(ub.User.name) == rp_header_username.lower()).first()
+            # [biblioteca] alta automática y rol de administrador sincronizado desde el proxy (opt-in por entorno)
+            user = proxy_provisioning.sync_user(user, rp_header_username, req.headers)
             if user:
                 return user
     return None

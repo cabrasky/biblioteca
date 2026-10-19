@@ -1,0 +1,44 @@
+# calibre-web y pedidos confían en la cabecera Remote-User, que solo es fiable si viene de Traefik
+# (tras Authelia). Así que solo Traefik (kube-system) puede hablar con ellos; aMule, solo
+# Traefik y el portal de pedidos. Sin esto, cualquier pod del cluster podría hacerse pasar
+# por cabrasky y obtener permisos de administrador en Calibre-Web.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: solo-traefik
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app, operator: In, values: [calibre-web, pedidos] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: kube-system }
+          podSelector:
+            matchLabels: { app.kubernetes.io/name: traefik }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: amule-web
+spec:
+  podSelector:
+    matchLabels: { app: amule }
+  policyTypes: [Ingress]
+  ingress:
+    # P2P (hostPort): desde cualquier sitio
+    - ports:
+        - { port: 4662, protocol: TCP }
+        - { port: 4665, protocol: UDP }
+        - { port: 4672, protocol: UDP }
+    # UI/API web: Traefik y el portal de pedidos
+    - ports:
+        - { port: 4711, protocol: TCP }
+      from:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: kube-system }
+          podSelector:
+            matchLabels: { app.kubernetes.io/name: traefik }
+        - podSelector:
+            matchLabels: { app: pedidos }

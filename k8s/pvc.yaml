@@ -1,0 +1,47 @@
+# Configuración de Calibre-Web (app.db: usuarios, estanterías, ajustes)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: calibre-web-config
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+# local-path (disco del nodo k3s). La biblioteca de calibre es SQLite: NO debe ir en NFS/SMB.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: calibre-biblioteca
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Compartido por aMule (/downloads), el importador de calibre y la app de pedidos (/descargas).
+# Con local-path y un único nodo, varios pods pueden montar el mismo volumen RWO.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: descargas
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: amule-config
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi

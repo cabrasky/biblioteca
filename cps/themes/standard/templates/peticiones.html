@@ -1,0 +1,56 @@
+{% extends theme("layout.html") %}
+{% block header %}
+<link href="{{ url_for('static', filename='css/peticiones.css') }}" rel="stylesheet" media="screen">
+{% endblock %}
+{% block body %}
+<div id="peticiones" class="peticiones" data-api="{{ peticiones_api }}">
+  <div class="pet-cabecera">
+    <h2>Peticiones</h2>
+    <span id="pet-red" class="pet-red" title="Estado de la red eD2K / Kad"><i></i><span>conectando…</span></span>
+  </div>
+  <p class="text-muted">¿No encuentras un libro en la biblioteca? Búscalo aquí y pídelo. Cuando termine de descargarse aparecerá solo en la biblioteca, con la etiqueta <code>pedido:{{ current_user.name }}</code>.</p>
+
+  <form id="pet-buscar" class="pet-buscador" autocomplete="off">
+    <div class="input-group input-group-lg">
+      <input id="pet-q" type="search" class="form-control" minlength="3" maxlength="120" required
+             placeholder="Título, autor… p. ej. «Cien años de soledad»">
+      <span class="input-group-btn">
+        <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+      </span>
+    </div>
+    <div id="pet-progreso" class="progress pet-progreso" hidden><div class="progress-bar progress-bar-striped active" style="width:3%"></div></div>
+  </form>
+
+  <div id="pet-resultados" hidden>
+    <div class="pet-subcabecera">
+      <h3>Resultados</h3>
+      <div id="pet-filtros" class="btn-group btn-group-sm" role="group"></div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover pet-tabla">
+        <thead><tr><th>Formato</th><th>Título</th><th class="text-right">Tamaño</th><th class="text-right">Disponibilidad</th><th></th></tr></thead>
+        <tbody id="pet-lista"></tbody>
+      </table>
+    </div>
+    <p id="pet-vacio" class="text-muted pet-vacio" hidden>Sin resultados de libros. Prueba con menos palabras o solo el apellido del autor.</p>
+  </div>
+
+  <div class="pet-subcabecera">
+    <h3>Pedidos</h3>
+    <ul class="nav nav-pills pet-pestanas">
+      <li class="active"><a href="#" data-todos="0">Míos</a></li>
+      <li><a href="#" data-todos="1">De todos</a></li>
+    </ul>
+  </div>
+  <div class="table-responsive">
+    <table class="table pet-tabla">
+      <thead><tr><th>Formato</th><th>Título</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="pet-pedidos"></tbody>
+    </table>
+  </div>
+  <p id="pet-sin-pedidos" class="text-muted pet-vacio" hidden>Todavía no hay pedidos.</p>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ url_for('static', filename='js/peticiones.js') }}"></script>
+{% endblock %}

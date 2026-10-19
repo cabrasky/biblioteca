@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Pedidos · Biblioteca</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<header class="barra">
+  <a class="marca" href="/">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M4 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm6 0h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm6.3 1.6 3.8-1a1 1 0 0 1 1.2.7l4 15.5-0 .1a1 1 0 0 1-.7 1.1l-3.8 1a1 1 0 0 1-1.2-.7L15.6 5.8a1 1 0 0 1 .7-1.2Z" transform="scale(.92) translate(1 1)"/></svg>
+    </span>
+    <span>Biblioteca</span>
+  </a>
+  <nav>
+    <a href="/" class="enlace">Ver la biblioteca</a>
+    <span id="red" class="red" title="Estado de la red eD2K / Kad"><i></i><b>conectando…</b></span>
+    <span id="yo" class="yo"></span>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Pide un libro</h1>
+    <p>Busca por título o autor. Cuando la descarga termine, el libro aparecerá solo en la biblioteca, etiquetado con tu nombre.</p>
+    <form id="buscar" class="buscador" autocomplete="off">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.4-1.41 1.4-5.4-5.38A8 8 0 1 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></svg>
+      <input id="q" name="q" type="search" minlength="3" maxlength="120" placeholder="p. ej. Cien años de soledad epub" required>
+      <button type="submit">Buscar</button>
+    </form>
+    <div id="progreso" class="progreso" hidden><div></div></div>
+  </section>
+
+  <section id="resultados" class="panel" hidden>
+    <div class="cabecera">
+      <h2>Resultados</h2>
+      <div class="filtros" id="filtros"></div>
+    </div>
+    <ul id="lista" class="lista"></ul>
+    <p id="vacio" class="vacio" hidden>Sin resultados de libros. Prueba con menos palabras o solo el apellido del autor.</p>
+  </section>
+
+  <section class="panel">
+    <div class="cabecera">
+      <h2>Pedidos</h2>
+      <div class="pestanas" role="tablist">
+        <button class="activa" data-todos="0" role="tab">Míos</button>
+        <button data-todos="1" role="tab">De todos</button>
+      </div>
+    </div>
+    <ul id="pedidos" class="lista pedidos"></ul>
+    <p id="sin-pedidos" class="vacio" hidden>Todavía no hay pedidos.</p>
+  </section>
+</main>
+
+<div id="aviso" class="aviso" role="status" hidden></div>
+<script src="static/app.js"></script>
+</body>
+</html>

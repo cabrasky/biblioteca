@@ -1,0 +1,24 @@
+# Todo pasa por Authelia (ipca.cabrasky.net, usuarios de FreeIPA) mediante el
+# Middleware compartido authelia/authelia. Quién entra a cada host lo decide la
+# access_control de Authelia: libros -> cualquier usuario de IPA; emule -> grupo admins.
+# TLS: lo termina nginx en .21, que reenvía a Traefik :443 (websecure).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: libros
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: authelia-authelia@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: libros.cabrasky.net
+      http:
+        paths:
+          - { path: /pedidos, pathType: Prefix, backend: { service: { name: pedidos, port: { name: http } } } }
+          - { path: /, pathType: Prefix, backend: { service: { name: calibre-web, port: { name: http } } } }
+    - host: emule.cabrasky.net
+      http:
+        paths:
+          - { path: /, pathType: Prefix, backend: { service: { name: amule, port: { name: web } } } }

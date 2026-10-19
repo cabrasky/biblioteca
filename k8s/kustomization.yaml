@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: biblioteca
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - calibre-web.yaml
+  - amule.yaml
+  - pedidos.yaml
+  - ingress.yaml
+  - networkpolicy.yaml
+# El Secret biblioteca-secrets NO se gestiona desde Git (ver secrets.env.example y README).
+images:
+  - name: biblioteca-calibre-web
+    newName: registry.cabrasky.net/biblioteca-calibre-web
+    newTag: latest
+  - name: biblioteca-pedidos
+    newName: registry.cabrasky.net/biblioteca-pedidos
+    newTag: latest
+# Argo CD Image Updater escribe los digest en .argocd-source-biblioteca.yaml (mismo directorio).

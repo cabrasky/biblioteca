@@ -119,6 +119,14 @@ def get_sidebar_config(kwargs=None):
             {"glyph": "glyphicon-th-list", "text": _('Books List'), "link": 'web.books_table', "id": "list",
              "visibility": constants.SIDEBAR_LIST, 'public': (not current_user.is_anonymous),
              "show_text": _('Show Books List'), "config_show": content, "no_param":True})
+    # [biblioteca] pestaña de peticiones de libros (ver cps/peticiones.py)
+    from . import peticiones
+    if peticiones.enabled():
+        sidebar.append(
+            {"glyph": "glyphicon-cloud-download", "text": "Peticiones", "link": 'peticiones.index',
+             "id": "peticiones", "visibility": constants.SIDEBAR_RECENT,
+             'public': (not current_user.is_anonymous), "page": "peticiones",
+             "show_text": "Peticiones", "config_show": False, "no_param": True})
     g.shelves_access = ub.session.query(ub.Shelf).filter(
         or_(ub.Shelf.is_public == 1, ub.Shelf.user_id == current_user.id)).order_by(ub.Shelf.name).all()
 
