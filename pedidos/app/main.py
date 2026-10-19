@@ -19,9 +19,11 @@ from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+
+from . import ebiblio
 
 AMULE_URL = os.environ.get("AMULE_URL", "http://amule:4711").rstrip("/")
 AMULE_PWD = os.environ.get("AMULE_WEBUI_PWD", "")
@@ -112,6 +114,7 @@ async def vida(_: FastAPI):
     init_db()
     yield
     await amule.cliente.aclose()
+    await ebiblio.cerrar()
 
 
 app = FastAPI(title="Pedidos de libros", lifespan=vida, docs_url=None, redoc_url=None, openapi_url=None)
@@ -187,6 +190,33 @@ async def estado(req: Request):
         "velocidad": (s.get("speeds") or {}).get("download_speed_bytes_per_second", 0),
         "libre": (s.get("disk") or {}).get("incoming_free_bytes"),
     }
+
+
+@app.get(BASE + api + "/ebiblio")
+async def buscar_ebiblio(q: str, req: Request):
+    """Préstamo gratuito antes que aMule: ¿está el libro en eBiblio?
+    recomendar=True si hay alguno que se pueda prestar o reservar ya."""
+    usuario(req)
+    q = q.strip()[:120]
+    if not ebiblio.activo() or len(q) < 3:
+        return {"activo": ebiblio.activo(), "nombre": ebiblio.EBIBLIO_NOMBRE, "resultados": [], "recomendar": False}
+    res = await ebiblio.buscar(q)
+    return {
+        "activo": True,
+        "nombre": ebiblio.EBIBLIO_NOMBRE,
+        "url": ebiblio.EBIBLIO_URL,
+        "resultados": res,
+        "recomendar": any(r["estado"] in ("disponible", "reservable") for r in res),
+    }
+
+
+@app.get(BASE + api + "/ebiblio/portada")
+async def portada_ebiblio(u: str, req: Request):
+    usuario(req)
+    r = await ebiblio.portada(u)
+    if not r:
+        raise HTTPException(404, "Portada no disponible")
+    return Response(content=r[0], media_type=r[1], headers={"Cache-Control": "private, max-age=86400"})
 
 
 class Busqueda(BaseModel):

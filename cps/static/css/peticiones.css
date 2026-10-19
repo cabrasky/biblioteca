@@ -27,4 +27,16 @@
 .pet-vacio { text-align: center; padding: 25px; border: 1px dashed rgba(128,128,128,.4); border-radius: 6px; }
 .pet-pestanas > li > a { padding: 5px 12px; }
 .pet-aviso { margin-bottom: 15px; }
+.pet-ebiblio { margin: 20px 0; padding: 15px 18px; border-radius: 8px; border: 1px solid rgba(92,184,92,.45); background: rgba(92,184,92,.08); }
+.pet-ebiblio.secundario { border-color: rgba(128,128,128,.35); background: rgba(128,128,128,.06); }
+.pet-ebiblio-cab { display: flex; gap: 12px; align-items: flex-start; }
+.pet-ebiblio-cab > .glyphicon { font-size: 22px; margin-top: 4px; color: #5cb85c; }
+.pet-ebiblio.secundario .pet-ebiblio-cab > .glyphicon { color: #999; }
+.pet-ebiblio-cab h3 { margin: 0 0 4px; font-size: 18px; }
+.pet-ebiblio-cab p { margin: 0; }
+.pet-ebiblio-lista { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.pet-ebiblio-lista li { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 6px; background: rgba(255,255,255,.55); }
+.pet-ebiblio-lista img { width: 40px; height: 58px; object-fit: cover; border-radius: 2px 4px 4px 2px; box-shadow: 0 1px 3px rgba(0,0,0,.25); flex: none; }
+.pet-ebiblio-lista .pet-eb-info { flex: 1; min-width: 0; }
+.pet-ebiblio-acciones { margin: 12px 0 0; }
 .pet-acciones { white-space: nowrap; text-align: right; }

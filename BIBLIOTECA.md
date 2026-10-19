@@ -32,6 +32,12 @@ Todos los cambios en el código llevan la marca `[biblioteca]`:
   (`cps/render_template.py`) y registro del blueprint (`cps/main.py`): pestaña **Peticiones**.
   Solo aparece si `CALIBRE_WEB_PETICIONES_API` está definida; habla con la API del servicio
   `pedidos/`.
+- **eBiblio primero** (`pedidos/app/ebiblio.py`, pestaña Peticiones): antes de buscar en eMule se
+  mira el catálogo de eBiblio Madrid (`EBIBLIO_URL`). Si el libro se puede prestar o reservar, se
+  recomienda el préstamo con enlace directo y eMule queda como «Buscar igualmente en eMule»; si
+  está pero sin ejemplares, se avisa y se busca en eMule. eBiblio no tiene API pública: se leen los
+  microdatos schema.org de `/resources?q=` y se filtran por coincidencia real con la búsqueda
+  (caché de 30 min). Las portadas pasan por `/pedidos/api/ebiblio/portada` (CSP de Calibre-Web).
 - **Buscador de arriba** (`cps/search.py`, `search.html`): si la búsqueda no encuentra nada en la
   biblioteca, salta a Peticiones con la búsqueda ya lanzada en eMule; si encuentra algo, ofrece
   igualmente el enlace «Buscar en eMule».

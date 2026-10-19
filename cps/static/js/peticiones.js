@@ -59,12 +59,56 @@
   function formato(f) { return '<span class="pet-formato f-' + esc(f) + '">' + esc(f) + "</span>"; }
   function espera(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
+  /* ---------------- eBiblio (préstamo gratuito, antes que eMule) ---------------- */
+  var ESTADO_EB = { disponible: ["Disponible", "success"], reservable: ["Prestado · se puede reservar", "warning"],
+                    no_disponible: ["Sin ejemplares ahora", "default"] };
+
+  function pintarEbiblio(d) {
+    var panel = $("#pet-ebiblio");
+    if (!d.activo || !d.resultados.length) { panel.hidden = true; return; }
+    panel.hidden = false;
+    panel.className = "pet-ebiblio" + (d.recomendar ? "" : " secundario");
+    $("#pet-ebiblio-titulo").textContent = d.recomendar ? "Está en " + d.nombre + ": préstamo gratuito" : "Está en " + d.nombre + ", pero sin ejemplares ahora";
+    $("#pet-ebiblio-texto").innerHTML = d.recomendar
+      ? "Te recomendamos tomarlo prestado con tu carné de biblioteca antes de descargarlo. Si aun así lo quieres en la biblioteca, búscalo en eMule."
+      : "No se puede prestar ni reservar en este momento, así que también lo buscamos en eMule.";
+    $("#pet-ebiblio-lista").innerHTML = d.resultados.map(function (r) {
+      var e = ESTADO_EB[r.estado] || [r.estado, "default"];
+      return "<li>" + (r.portada ? '<img alt="" loading="lazy" src="' + esc(API + "/ebiblio/portada?u=" + encodeURIComponent(r.portada)) + '">' : "") +
+        '<div class="pet-eb-info"><div class="pet-titulo">' + esc(r.titulo) + '</div><div class="pet-meta">' +
+        esc(r.autores.join(", ")) + " · " + esc(r.tipo) + (r.formatos.length ? " · " + esc(r.formatos.join(", ")) : "") +
+        " · " + esc(r.disponibilidad) + '</div></div><span class="label label-' + e[1] + '">' + e[0] + "</span> " +
+        '<a class="btn btn-success btn-sm" target="_blank" rel="noopener" href="' + esc(r.url) + '">' +
+        (r.estado === "disponible" ? "Prestar" : r.estado === "reservable" ? "Reservar" : "Ver") + " en " + esc(d.nombre) + "</a></li>";
+    }).join("");
+    $("#pet-ebiblio-acciones").hidden = !d.recomendar;
+  }
+
   /* ---------------- búsqueda ---------------- */
   $("#pet-buscar").addEventListener("submit", function (e) {
     e.preventDefault();
     var q = $("#pet-q").value.trim();
     if (q.length < 3) return;
     var boton = $("#pet-buscar button");
+    boton.disabled = true;
+    $("#pet-resultados").hidden = true;
+    $("#pet-ebiblio").hidden = true;
+    // Primero eBiblio: si se puede prestar/reservar, se recomienda y NO se lanza eMule
+    api("ebiblio?q=" + encodeURIComponent(q))
+      .catch(function () { return { activo: false, resultados: [] }; })
+      .then(function (d) {
+        pintarEbiblio(d);
+        if (d.recomendar) { boton.disabled = false; return; }
+        buscarEmule(q, boton);
+      });
+  });
+
+  $("#pet-emule-igual").addEventListener("click", function () {
+    $("#pet-ebiblio-acciones").hidden = true;
+    buscarEmule($("#pet-q").value.trim(), $("#pet-buscar button"));
+  });
+
+  function buscarEmule(q, boton) {
     boton.disabled = true;
     if (busqueda) api("busquedas/" + busqueda, { method: "DELETE" }).catch(function () {});
     resultados = []; filtro = "todos"; pintarResultados();
@@ -75,7 +119,7 @@
       .then(function (d) { busqueda = d.id; return sondear(d.id, 0); })
       .catch(function (err) { avisar(err.message, true); })
       .then(function () { boton.disabled = false; barra.hidden = true; });
-  });
+  }
 
   function sondear(id, n) {
     if (busqueda !== id || n > 120) return Promise.resolve();
